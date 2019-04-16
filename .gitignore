@@ -18,3 +18,5 @@ thumbs.db
 /.vs/xPDFSearch/v15/Browse.VC.opendb
 /.vs/xPDFSearch/v15/Browse.VC.db
 *.db
+
+browse.VC.db
