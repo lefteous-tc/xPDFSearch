@@ -1,82 +1,45 @@
-#ifndef xPDFInfoH
-#define xPDFInfoH
-
-#include <tchar.h>
-#include <windows.h>
-
+#pragma once
 #include "contentplug.h"
+#include <tchar.h>
 
-#include "xpdfsearch_base.h"
+/**
+* @file
+* Declaration of enumerations used in extraction
+*/
 
-
-#include "GString.h"
-#include "Object.h"
-#include "UnicodeMap.h"
-
-
-#include "ThreadData.h"
-#include "PDFMetadataExtractor.h"
-
-
-// functions
-// ---------
-
-// getText starts the fulltext extraction thread. It returns found text to Total Commander. 
-int getText (wchar_t* FileName, int UnitIndex,void* FieldValue,int maxlen,int flags, BOOL copyPermissionRequired);
-
-// getDocStart returns the first ~1000 characters of a pdf file.
-int getDocStart (wchar_t* FileName, int UnitIndex,void* FieldValue,int maxlen,int flags, BOOL firstRow);
-
-void fixInvalidCharacters (char* text);
-
-// getTextFunc is the text extraction thread function.
-DWORD WINAPI getTextFunc (void* param);
-
-// destroy is used to clean some globally allocated resources allocated in init.
-void destroy ();
-
-
-
-// threadData is used to share resource between the consumer and the producer thread.
-// Access has to be synchronized!
-ThreadData threadData;
-
-// threadHandle is the threadHandle for the producer thread.
-HANDLE threadHandle = NULL;
-
-// syncObj contains synchronization and thread objects.
-HANDLE syncObj [2];
-
-// extract is used to indicate if text is currently extracted from a pdf file.
-BOOL extract = FALSE;
-
-PDFMetadataExtractor* pMetadataExtrator;
-
-// variables
-// ---------
-
-// The fieldNames array is used to simplify fieldname returning.
-char* fieldNames[FIELD_COUNT] = 
+/**
+* PDF page units 
+*/
+enum SizeUnits
 {
-	"Title", "Subject", "Keywords", "Author", "Application", "PDF Producer", "Number Of Pages", "PDF Version", "Page Width", "Page Height",
-	"Document Start", "First Row",
-	"Copying Allowed", "Printing Allowed", "Adding Comments Allowed", "Changing Allowed", "Encrypted", "Tagged", "Linearized",
-	"Created", "Modified",	
-	"Text"
+    suMilliMeters,  /**< millimeters */
+    suCentiMeters,  /**< centimeters */
+    suInches,       /**< inches */
+    suPoints        /**< points */
 };
 
-// The fieldtypes array is used to simplify fieldtype returning.
-int fieldTypes [FIELD_COUNT] = 
+/**
+* The fieldIndexes enumeration is used simplify access to fields. 
+*/
+enum fieldIndexes
 {
-	ft_stringw, ft_stringw, ft_stringw, ft_stringw, ft_stringw, ft_stringw, ft_numeric_32, ft_numeric_floating, ft_numeric_floating, ft_numeric_floating,
-	ft_stringw, ft_stringw,
-	ft_boolean, ft_boolean, ft_boolean, ft_boolean, ft_boolean, ft_boolean, ft_boolean,
-	ft_datetime, ft_datetime,	
-	ft_fulltext
+    fiTitle, fiSubject, fiKeywords, fiAuthor, fiCreator, fiProducer, fiDocStart, fiFirstRow,
+    fiNumberOfPages, 
+    fiPDFVersion, fiPageWidth, fiPageHeight,
+    fiCopyingAllowed, fiPrintingAllowed, fiAddCommentsAllowed, fiChangingAllowed, fiEncrypted, fiTagged, fiLinearized, fiIncremental, fiSignature,
+    fiCreationDate, fiLastModifiedDate, 
+    fiID, fiAttributesString,
+    fiText
 };
+/**< used to globally set the number of supported fields. */
+constexpr auto FIELD_COUNT = 26;
 
-// enableDateTimeField is used to indicate if date time fields at the end of the field list are support 
-// by currently used Total Commander version.
-BOOL enableDateTimeField = FALSE;
-
+#ifdef _DEBUG
+extern bool __cdecl _trace(const wchar_t *format, ...);
+#define TRACE _trace
+#else
+#ifdef __MINGW32__
+#define __noop(...)
+#endif
+#define TRACE __noop
 #endif
